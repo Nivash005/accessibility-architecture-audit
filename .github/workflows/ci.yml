@@ -23,6 +23,8 @@ jobs:
         run: npm install --prefix server
       - name: Install root development tools
         run: npm install
+      - name: Validate static HTML with W3C Nu
+        run: node scripts/validate-w3c.mjs
       - name: Build the client
         run: npm run build
       - name: Run tests
