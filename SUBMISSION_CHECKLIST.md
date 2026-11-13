@@ -1,33 +1,34 @@
-# Final review checklist
+# Final submission checklist
 
-This is the list I use to check the repository before handing it in.
+## Project foundation
 
-## Project and documentation
-
-- [x] Public website selected and linked
+- [x] Public service website selected and linked
 - [x] Five findings described with priorities and suggested improvements
-- [x] Client, server, docs and tests kept in separate folders
-- [x] Architecture and local setup explained in the README
-- [x] First service-catalogue feature slice included
+- [x] Client, server, documentation and tests kept in separate folders
+- [x] Architecture and setup explained in the README
+- [x] Service-catalogue feature slice included
 - [x] Audit CSV included
-- [x] GitHub Actions CI configured
+- [x] Build and test workflow configured
 
-## Live audit evidence
+## Live website evidence
 
-- [ ] Lighthouse HTML and JSON reports are present in `docs/audit/lighthouse/`
-- [ ] Lighthouse summary screenshot is present
-- [ ] Home-page keyboard focus screenshot is present
-- [ ] Navigation screenshot is present
-- [ ] FAQ/accessibility screenshot is present
-- [ ] Services-page screenshot is present
-- [ ] Keyboard trace and axe results have a date and tested URL
+- [ ] Usable Lighthouse HTML and JSON reports
+- [ ] Lighthouse screenshot showing a real report with scores
+- [ ] Home page first-focus screenshot
+- [ ] Home page navigation screenshot
+- [ ] FAQ/accessibility-controls screenshot
+- [ ] Services page screenshot
+- [ ] Keyboard trace with real Tab and Shift+Tab stops
+- [ ] axe results for all three pages
 
-The audit workflow is designed to create these files and commit them to `main`. I only tick the items above after checking that the files exist in the repository.
+## Why these are still unchecked
 
-## Before submission
+The hosted browser could not load the Tamil Nadu portal. Lighthouse returned NO_FCP and Chromium timed out on the three pages. The failed attempts are documented in docs/audit/environment-limitations.md. A screenshot of about:blank is not being counted as evidence.
 
-- [ ] Open the reports and make sure they are readable.
-- [ ] Check the screenshots show the real website and not a browser error page.
-- [ ] Read the findings next to the evidence; do not describe an automated warning as a confirmed user failure.
-- [ ] Keep the final README and report consistent with the latest audit run.
+When the portal is reachable from a local Windows browser, run this from PowerShell in the repository root:
 
+\`\`\`powershell
+.\\scripts\\run-audit-local.ps1
+\`\`\`
+
+Open the generated reports, check that screenshots show the actual portal, and only then mark the items above complete.

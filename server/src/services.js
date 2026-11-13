@@ -1,4 +1,4 @@
-// These entries are examples for the demo UI, not an official government catalogue.
+// Sample entries for the demo page. This is not an official government service catalogue.
 export const services = [
   {
     id: "department-directory",
@@ -8,8 +8,8 @@ export const services = [
   },
   {
     id: "government-forms",
-    name: "Government forms",
-    description: "Find forms published by Tamil Nadu Government departments.",
+    name: "Government information and forms",
+    description: "Start from the Government of Tamil Nadu portal to find published forms and information.",
     href: "https://www.tn.gov.in/"
   },
   {

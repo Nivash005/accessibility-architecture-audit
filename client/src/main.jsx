@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { getServiceStatusMessage } from "./serviceStatus.js";
 import "./styles.css";
 
 function App() {
@@ -9,14 +10,14 @@ function App() {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch("http://localhost:4000/api/services", { signal: controller.signal })
+    fetch("/api/services", { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("The service list could not be loaded.");
         return response.json();
       })
       .then((data) => {
         setServices(data);
-        setStatus("ready");
+        setStatus(data.length > 0 ? "ready" : "empty");
       })
       .catch((error) => {
         if (error.name !== "AbortError") setStatus("error");
@@ -44,14 +45,14 @@ function App() {
       <main id="main-content" className="container">
         <section id="services" aria-labelledby="services-heading">
           <h2 id="services-heading">Service directory</h2>
-          <p>These sample entries are here to demonstrate the API and page structure.</p>
+          <p>These sample entries demonstrate the page structure and API connection.</p>
 
-          {status === "loading" && <p role="status">Loading the service list…</p>}
-          {status === "error" && (
-            <p role="alert">
-              I couldn't load the service list. Check that the API is running on port 4000, then refresh.
+          {status !== "ready" && (
+            <p role={status === "error" ? "alert" : "status"}>
+              {getServiceStatusMessage(status)}
             </p>
           )}
+
           {status === "ready" && (
             <ul className="service-list">
               {services.map((service) => (

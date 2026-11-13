@@ -1,1 +1,0 @@
-# Lighthouse could not complete\n\nThe normal browser run returned no usable Lighthouse JSON report. Check tls-check.txt and the GitHub Actions log. No score has been invented.\n

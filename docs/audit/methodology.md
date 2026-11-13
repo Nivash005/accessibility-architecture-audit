@@ -1,51 +1,52 @@
-# How the audit is run
+# How to repeat the audit
 
-I kept the scope small enough to repeat: the home page, the Services page and the FAQ. The same pages are used each time so the results can be compared over time.
+I kept the scope to three pages so the same checks can be run again later:
 
-## 1. Lighthouse
+- Home: https://www.tn.gov.in/
+- Services: https://www.tn.gov.in/services.php
+- FAQ: https://www.tn.gov.in/faq.php
 
-The live audit workflow runs Lighthouse in headless Chromium against the portal home page. It saves both formats:
+## Lighthouse
 
-- `docs/audit/lighthouse/tn-gov-home.report.html`
-- `docs/audit/lighthouse/tn-gov-home.report.json`
+Lighthouse runs against the home page in Chromium. It collects Accessibility, Performance, Best Practices and SEO results.
 
-The workflow also captures the top of the HTML report as `docs/screenshots/01-home-lighthouse.png`.
+The intended output files are:
 
-For a local run, install Lighthouse and Chrome, then use:
+- docs/audit/lighthouse/tn-gov-home.report.html
+- docs/audit/lighthouse/tn-gov-home.report.json
+- docs/audit/lighthouse/summary.md
+- docs/screenshots/01-home-lighthouse.png
 
-```bash
-npx lighthouse https://www.tn.gov.in/ \
-  --only-categories=accessibility,performance,best-practices,seo \
-  --output=html --output=json \
-  --output-path=docs/audit/lighthouse/tn-gov-home.report \
-  --chrome-flags="--headless --no-sandbox"
-```
+A Lighthouse score is only a snapshot of one page, viewport and run. It can change when content, network conditions or third-party resources change.
 
-A Lighthouse score is a snapshot, not a permanent property of a website. Network conditions, page content and third-party resources can change the result.
+## Keyboard walkthrough
 
-## 2. Keyboard-only pass
+The Playwright script sends Tab and Shift+Tab events through Chromium. It does not use a mouse to move between controls.
 
-The Playwright script opens each page in Chromium and sends keyboard input. It does not click page controls with a mouse.
+On the home page it records the first 24 Tab stops, then sends Shift+Tab once to check reverse movement. For each stop it records the element type, visible label, link target, focus-visible match, outline styling and whether the element is in the viewport.
 
-On the home page it:
-1. presses Tab repeatedly and records the focused element;
-2. records the element's tag, visible text, role, link target and focus-visible state;
-3. presses Shift+Tab to check that focus can move backwards;
-4. captures the first focus state and a later navigation state.
+It then opens the FAQ and Services pages. The FAQ pass checks the first 45 Tab stops for text associated with font, contrast, colour or accessibility controls. This is a search for likely controls; it does not prove that a control works correctly.
 
-It then captures the FAQ and Services pages. The script records what it can inspect; it does not declare a control usable just because it received focus.
+The results are written to docs/audit/keyboard-results.md and docs/audit/keyboard-results.json. Screenshots are saved under docs/screenshots/.
 
-The result is saved to `docs/audit/keyboard-results.md`, with screenshots in `docs/screenshots/`.
+## axe-core
 
-## 3. Automated accessibility checks
+axe-core runs on the home, Services and FAQ pages when Chromium receives a usable page response. A page that cannot be loaded is marked not checked; a blank browser tab is never counted as a passing result.
 
-The same browser session runs axe-core on the home, Services and FAQ pages. The raw results are saved to `docs/audit/axe-results.json`. The report includes rule IDs, impact, affected selectors and help links.
+The raw output is saved in docs/audit/axe-results.json. It contains rule IDs, impact, affected elements and help links.
 
-Automated checks are only one part of an accessibility review. They cannot fully assess reading order, whether instructions are clear, whether a workflow is understandable, or whether a person can complete it with their assistive technology.
+## Running the audit on Windows
 
-## 4. Re-running the audit
+GitHub-hosted Chromium timed out before the Tamil Nadu portal rendered during the first attempts. When that happens, a local browser is the better place to repeat the check.
 
-The GitHub Actions workflow runs when audit scripts or the audit documentation change on `main`. It saves its output back to this repository. It can also be started manually from the Actions tab using **Run workflow**.
+Open PowerShell in the repository folder and run:
 
-When reviewing a new result, compare the date and the page URL before comparing scores. Do not copy an old score into a new report.
+\`\`\`powershell
+.\\scripts\\run-audit-local.ps1
+\`\`\`
 
+The script installs Lighthouse, Playwright and axe-core, downloads Chromium, then runs both checks. It does not disable certificate validation.
+
+## Interpreting the results
+
+A missing focus ring in a computed CSS property is a signal to inspect, not automatic proof of a WCAG failure. Likewise, an axe violation should be checked in context before deciding how it affects a visitor. Record what was observed, the page where it happened and the evidence file that supports it.

@@ -1,16 +1,15 @@
-# Screenshots and browser evidence
+# Browser screenshots
 
-These files are generated from the live Tamil Nadu Government Portal by the audit workflow. They are not mockups of the website.
+These screenshots are meant to show the real Tamil Nadu Government Portal, not a recreation of it.
 
-| File | What it shows |
+| File | Capture |
 |---|---|
-| `01-home-lighthouse.png` | Lighthouse report summary for the portal home page |
-| `02-keyboard-focus.png` | The first keyboard focus state on the home page |
-| `03-navigation.png` | A later point in the home-page keyboard sequence |
-| `04-accessibility-controls.png` | FAQ page and its documented accessibility options |
-| `05-service-navigation.png` | The department-wise Services page |
+| 01-home-lighthouse.png | Lighthouse report for the home page. If the page does not paint, the image will show the Lighthouse error instead of a score. |
+| 02-keyboard-focus.png | First Tab stop on the home page. |
+| 03-navigation.png | Home page after twelve Tab presses. |
+| 04-accessibility-controls.png | FAQ page after keyboard navigation. |
+| 05-service-navigation.png | Full-page capture of the Services page. |
 
-The companion `docs/audit/keyboard-results.md` contains the focus trace and timestamp. The Lighthouse HTML/JSON and axe results are in `docs/audit/lighthouse/` and `docs/audit/axe-results.json`.
+The keyboard trace is in docs/audit/keyboard-results.md. Lighthouse output is in docs/audit/lighthouse/.
 
-Because the pages are live, screenshots may change as the portal changes. The audit timestamp and tested URLs are included with the results.
-
+Do not submit a screenshot of about:blank, a browser error or an empty Lighthouse report as proof that the website was audited. The report should say clearly when the page could not be loaded.

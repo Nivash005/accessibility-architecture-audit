@@ -2,9 +2,10 @@
   "name": "accessibility-architecture-audit",
   "private": true,
   "version": "1.0.0",
-  "description": "A focused accessibility review of the Tamil Nadu Government Portal and a small React/Express service-catalogue starter.",
+  "description": "An accessibility review of the Tamil Nadu Government Portal and a small React/Express service-directory demo.",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
     "test": "npm test --prefix server && npm test --prefix client",
     "audit:keyboard": "node scripts/run-keyboard-audit.mjs",
     "audit:lighthouse": "npx lighthouse https://www.tn.gov.in/ --only-categories=accessibility,performance,best-practices,seo --output=html --output=json --output-path=docs/audit/lighthouse/tn-gov-home --chrome-flags=\"--headless --no-sandbox\""

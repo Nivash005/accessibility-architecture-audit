@@ -1,30 +1,29 @@
-# How the starter app is organised
+# Project structure
 
-I kept the app deliberately small. The aim is to show where each responsibility belongs, not to build a full government service platform.
+I kept this app small on purpose. It shows how a service directory can be split into parts without mixing page code, HTTP handling and data storage.
 
-## The pieces
+## Client
 
-### Client
+The React app displays the service list. It handles the loading, empty and error states, and provides a skip link and visible keyboard focus styling.
 
-The React app displays the service list and handles loading and error messages. It uses semantic headings, a skip link and visible keyboard focus styling.
+The client requests /api/services. In development, Vite forwards that request to the Express server. The client does not import server files or connect directly to a database.
 
-The client calls `GET /api/services`. It does not import server-side code or read from a database.
+## Server
 
-### Server
+Express provides two simple routes:
 
-The Express app exposes the API. The route calls a small service-list function and returns JSON. The sample data lives in its own module so it can be replaced later.
+- GET /health confirms that the server is running.
+- GET /api/services returns the sample service list.
 
-### Documentation and tests
+The list is kept in server/src/services.js. That keeps sample content out of the route handler.
 
-The `docs/` folder holds the research, audit results and architecture notes. The `tests/` folder contains a short acceptance checklist. The automated unit tests run in GitHub Actions on pushes and pull requests.
+## First feature slice
 
-## One feature, from screen to data
-
-```text
-Person opens the catalogue
+\`\`\`text
+Visitor opens the page
         |
         v
-React renders loading state
+React shows a loading message
         |
         v
 GET /api/services
@@ -40,15 +39,14 @@ Sample service records
         |
         v
 React renders the list
-```
+\`\`\`
 
-## Why keep these boundaries?
+## Why these boundaries matter
 
-If I later replace the sample array with SQLite or PostgreSQL, I should only need to change the server-side data layer. The React component should still receive the same JSON shape.
+If I replace the sample array with SQLite or PostgreSQL later, the browser should not need to change. The API response can stay the same while the server's data-access code changes.
 
-This also makes it easier to test the UI and API separately. Accessibility-related changes can stay in the client without pulling database details into the browser.
+That also makes testing easier: I can test the service-list function separately from the page, and I can keep keyboard interaction and focus styling in the client where they belong.
 
-## What I would add next
+## What I would add for a real service
 
-For a real service, I would add request validation, a repository interface, persistent storage, API integration tests and a proper error model. I would also add component-level accessibility tests and a manual screen-reader test plan before treating the service as ready for public use.
-
+Before using this as a public-facing service, I would add persistent storage, input validation, integration tests, proper API error handling and user research. I would also run a manual screen-reader test with people who use assistive technology.

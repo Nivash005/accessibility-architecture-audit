@@ -1,12 +1,10 @@
-# Lighthouse evidence
+# Lighthouse files
 
-The live-site workflow writes the Lighthouse HTML and JSON reports here, along with a short score and failed-audit summary.
+The live workflow writes an HTML report and JSON report here when the home page loads successfully.
 
-Files created by a successful run:
+- tn-gov-home.report.html — full Lighthouse report.
+- tn-gov-home.report.json — raw Lighthouse results.
+- summary.md and summary.json — short result summaries.
+- connectivity-check.txt — response headers from the GitHub-hosted runner.
 
-- tn-gov-home.html — full human-readable Lighthouse report
-- tn-gov-home.report.json — full machine-readable Lighthouse result
-- summary.json — captured URL, date, version and category scores
-- report-summary.md — readable score and findings overview
-
-The report is a browser snapshot taken at one point in time. Use the failed-audit details and affected elements, not just the headline score. A Lighthouse score is not a WCAG conformance certificate.
+A Lighthouse NO_FCP result means the browser did not paint the page. It is not a score and must not be described as a successful audit. See ../environment-limitations.md for the hosted-runner issue.
