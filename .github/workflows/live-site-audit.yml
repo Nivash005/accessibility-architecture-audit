@@ -143,5 +143,7 @@ jobs:
             echo 'No new evidence changes to commit.'
           else
             git commit -m 'audit: add live portal Lighthouse and keyboard evidence'
-            git push
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
           fi
