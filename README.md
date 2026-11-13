@@ -68,7 +68,7 @@ I have not invented a score or added screenshots of the blank browser tab. The s
 If the portal opens in a normal browser on your network, open PowerShell in the repository folder and run:
 
 \`\`\`powershell
-.\\scripts\\run-audit-local.ps1
+.\scripts\run-audit-local.ps1
 \`\`\`
 
 The script installs Lighthouse, Playwright and axe-core, downloads Chromium, and runs the checks. Review the output before committing it. Do not disable certificate validation to force a score.
