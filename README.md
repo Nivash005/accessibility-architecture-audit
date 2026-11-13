@@ -1,23 +1,25 @@
-# A practical accessibility audit and a small full-stack starter
+# Accessibility audit of the Tamil Nadu Government Portal
 
-This repository started as an assignment: choose a public-service website, look at how a person actually moves through it, write down what could be better, and build a project structure that would make improvements easier to maintain.
+This repository is my practical audit and a small full-stack starter project. I chose the [Tamil Nadu Government Portal](https://www.tn.gov.in/) because people use it to find government information, forms, department contacts and links to public services.
 
-I chose the **[Government of Tamil Nadu portal](https://www.tn.gov.in/)** because it is a real entry point for government information and links to services used by citizens. The portal's own [FAQ](https://www.tn.gov.in/faq.php) describes its purpose and lists accessibility options such as text-size and contrast settings. Those statements are useful context, but they are not proof that every page or control works for every user. The live tests in this repository check the experience rather than simply repeating the site's claims.
+The point of the exercise is not to redesign the government website. It is to look at how a citizen might move through it, record issues that could make that harder, and build a clean starting point for an accessible service catalogue.
 
-## What is here
+## What is in this repository?
 
-- `docs/audit/report.md` explains the scope, findings and priorities.
-- `docs/audit/lighthouse/` holds the Lighthouse report and score summary from the live run.
-- `docs/audit/keyboard-pass.md` and `keyboard-results.json` record the keyboard walkthrough.
-- `docs/screenshots/` contains captures from the pages that were tested.
-- `accessibility-audit-template.csv` is the issue register in spreadsheet-friendly form.
-- `client/` is a React/Vite service-list interface.
-- `server/` is a small Express API that supplies the service list.
-- `docs/architecture/README.md` explains why those parts are kept separate.
+- **`client/`** – a small React page that reads service entries from the API.
+- **`server/`** – an Express API that returns the service catalogue.
+- **`docs/audit/`** – the audit notes, method, sources and space for Lighthouse output.
+- **`docs/architecture/`** – why the client and server are kept separate.
+- **`docs/screenshots/`** – browser evidence from the audit.
+- **`scripts/`** – scripts that run the keyboard-only browser pass and prepare the Lighthouse screenshot.
+- **`tests/`** – a short acceptance checklist.
+- **`.github/workflows/`** – CI checks and the live website audit workflow.
 
-## Run it locally
+## Run the project locally
 
-You will need Node.js 20 or newer and npm.
+You will need Node.js 20 or newer.
+
+From the repository root:
 
 ```bash
 npm install
@@ -26,48 +28,69 @@ npm install --prefix server
 npm run dev
 ```
 
-The web client runs at http://localhost:5173. The API runs at http://localhost:4000; Vite forwards /api requests to it during development.
+The client runs at [http://localhost:5173](http://localhost:5173). The API runs at [http://localhost:4000](http://localhost:4000).
 
-Run the tests with:
+To run the tests:
 
 ```bash
 npm test
 ```
 
-## How the starter app is put together
+The catalogue data is sample data for this project. It is not an official Tamil Nadu Government service, and the demo does not collect applications or personal information.
 
-The first feature is deliberately small: show a list of public-service examples.
+## How I approached the audit
+
+I looked at three parts of the portal:
+
+1. The home page, where people start looking for information.
+2. The Services page, which groups services by government department.
+3. The FAQ, which explains the portal's purpose and lists the accessibility options it says are available.
+
+The audit uses Lighthouse for an automated snapshot and browser keyboard input to record the focus path. Those tools are useful, but they do not replace a person using a screen reader or testing the site with assistive technology. The report keeps that distinction clear.
+
+The [audit report](docs/audit/report.md) explains the five findings, their impact and suggested fixes. The [method](docs/audit/methodology.md) explains how the evidence was collected.
+
+## Architecture in one picture
 
 ```text
-Browser -> React page -> GET /api/services -> Express route -> service data
+Browser
+  |
+  v
+React service catalogue
+  |
+  | GET /api/services
+  v
+Express route
+  |
+  v
+Service-list function
+  |
+  v
+Sample service data
 ```
 
-The browser does not know how the server stores its data. Today the example data is held in memory. A database can be introduced behind the server later without teaching the React components about database tables or drivers. The entries are examples, not live application links from the Government portal.
+The browser only knows about the API. It does not import server files or know how the data is stored. That gives the project a clear place to add a database later without rewriting the page.
 
-## Re-running the website audit
+## Audit evidence
 
-The **Live website accessibility audit** workflow runs Lighthouse and a keyboard-only browser walkthrough against three public pages:
+The live audit workflow runs when audit-related files change on `main`. It creates:
 
-- [Home](https://www.tn.gov.in/)
+- a Lighthouse HTML report and JSON results in `docs/audit/lighthouse/`;
+- screenshots of the Lighthouse report and the three portal pages;
+- a keyboard focus trace and automated accessibility findings.
+
+The workflow uses a real browser against the live public website. The results can change when the website changes, so the reports include a timestamp. See [the screenshot guide](docs/screenshots/README.md) for the file names.
+
+## A note about the findings
+
+The five findings are improvement areas, not a claim that the portal has failed every related WCAG criterion. I have separated what is visible in the portal or its own documentation from what the automated checks report. A proper conformance assessment would also need manual testing with people who use assistive technology.
+
+## References
+
+- [Tamil Nadu Government Portal](https://www.tn.gov.in/)
 - [Services](https://www.tn.gov.in/services.php)
-- [FAQ](https://www.tn.gov.in/faq.php)
+- [Frequently asked questions](https://www.tn.gov.in/faq.php)
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
+- [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/)
+- [Playwright keyboard documentation](https://playwright.dev/docs/input#keyboard)
 
-It saves the HTML/JSON Lighthouse output, the keyboard trace and real browser screenshots in this repository. You can run it again from **Actions → Live website accessibility audit → Run workflow**. It also runs automatically when the audit script or workflow changes.
-
-The equivalent local Lighthouse command is:
-
-```bash
-npx lighthouse https://www.tn.gov.in/ \
-  --only-categories=accessibility,performance,best-practices,seo \
-  --output=html --output-path=docs/audit/lighthouse/tn-gov-home.html
-```
-
-The screenshots are evidence from a particular browser, viewport and date. They are not a certificate of WCAG conformance. A human should still review the full page, test with a screen reader, and check any manual Lighthouse audits before making a compliance claim.
-
-## Main references
-
-- [Tamil Nadu Government portal](https://www.tn.gov.in/)
-- [Portal FAQ](https://www.tn.gov.in/faq.php)
-- [Services page](https://www.tn.gov.in/services.php)
-- [Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/wcag/)
-- [Chrome DevTools accessibility reference](https://developer.chrome.com/docs/devtools/accessibility/)

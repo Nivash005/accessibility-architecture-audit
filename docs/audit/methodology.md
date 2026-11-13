@@ -1,43 +1,51 @@
-# How the audit was run
+# How the audit is run
 
-This page describes the repeatable checks used in this repository. Results belong in the report files created by the workflow, not in this procedure document.
+I kept the scope small enough to repeat: the home page, the Services page and the FAQ. The same pages are used each time so the results can be compared over time.
 
-## Pages
+## 1. Lighthouse
 
-| Page | Reason for including it |
-|---|---|
-| https://www.tn.gov.in/ | Main entry point and primary navigation |
-| https://www.tn.gov.in/services.php | Department-wise service catalogue |
-| https://www.tn.gov.in/faq.php | The portal's own explanation of its accessibility options and purpose |
+The live audit workflow runs Lighthouse in headless Chromium against the portal home page. It saves both formats:
 
-## Lighthouse
+- `docs/audit/lighthouse/tn-gov-home.report.html`
+- `docs/audit/lighthouse/tn-gov-home.report.json`
 
-The workflow runs Lighthouse against the homepage and keeps both the HTML report and machine-readable JSON. The score summary records the date, Lighthouse version, browser user agent, failed audits and manual audits.
+The workflow also captures the top of the HTML report as `docs/screenshots/01-home-lighthouse.png`.
 
-To repeat it locally:
+For a local run, install Lighthouse and Chrome, then use:
 
 ```bash
 npx lighthouse https://www.tn.gov.in/ \
   --only-categories=accessibility,performance,best-practices,seo \
-  --output=html --output-path=docs/audit/lighthouse/tn-gov-home.html
+  --output=html --output=json \
+  --output-path=docs/audit/lighthouse/tn-gov-home.report \
+  --chrome-flags="--headless --no-sandbox"
 ```
 
-Read the audit details, not only the overall score. A passing automated accessibility score is not proof of WCAG compliance.
+A Lighthouse score is a snapshot, not a permanent property of a website. Network conditions, page content and third-party resources can change the result.
 
-## Keyboard walkthrough
+## 2. Keyboard-only pass
 
-The Playwright script opens the three pages at a 1440 x 1000 viewport. On the homepage it presses Tab 36 times, records the active element and its computed focus styling, then presses Shift+Tab and checks whether focus returns to the preceding stop. It also looks for the advertised font, contrast or accessibility controls during the first 45 Tab stops on the FAQ page.
+The Playwright script opens each page in Chromium and sends keyboard input. It does not click page controls with a mouse.
 
-No mouse or pointer events are used during the keyboard sequence. The screenshots show the first focus state, the page after twelve Tab presses, the FAQ accessibility-control search and the Services page.
+On the home page it:
+1. presses Tab repeatedly and records the focused element;
+2. records the element's tag, visible text, role, link target and focus-visible state;
+3. presses Shift+Tab to check that focus can move backwards;
+4. captures the first focus state and a later navigation state.
 
-The script records:
+It then captures the FAQ and Services pages. The script records what it can inspect; it does not declare a control usable just because it received focus.
 
-- tag, label, link destination and tab index of each focused element;
-- whether :focus-visible matches;
-- computed outline and box-shadow values;
-- whether the focused element is within the viewport;
-- page title and language, heading sequence, unnamed links/buttons and missing image alt attributes.
+The result is saved to `docs/audit/keyboard-results.md`, with screenshots in `docs/screenshots/`.
 
-## Manual review still matters
+## 3. Automated accessibility checks
 
-A script can record focus order, but it cannot decide whether a link name is helpful, whether the sequence feels natural, or whether a screen-reader user understands the service structure. Review the screenshots and JSON with the live page open. For a stronger assessment, repeat the critical tasks using a screen reader and at least one mobile viewport.
+The same browser session runs axe-core on the home, Services and FAQ pages. The raw results are saved to `docs/audit/axe-results.json`. The report includes rule IDs, impact, affected selectors and help links.
+
+Automated checks are only one part of an accessibility review. They cannot fully assess reading order, whether instructions are clear, whether a workflow is understandable, or whether a person can complete it with their assistive technology.
+
+## 4. Re-running the audit
+
+The GitHub Actions workflow runs when audit scripts or the audit documentation change on `main`. It saves its output back to this repository. It can also be started manually from the Actions tab using **Run workflow**.
+
+When reviewing a new result, compare the date and the page URL before comparing scores. Do not copy an old score into a new report.
+

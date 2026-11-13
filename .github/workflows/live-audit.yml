@@ -1,0 +1,67 @@
+name: Live website audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/live-audit.yml"
+      - "scripts/**"
+      - "docs/audit/**"
+      - "docs/architecture/**"
+      - "docs/screenshots/**"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    # The audit commits its own evidence. Skip that follow-up push to avoid a loop.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install browser audit tools
+        run: npm install --no-save --no-package-lock lighthouse playwright axe-core
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Create report folders
+        run: mkdir -p docs/audit/lighthouse docs/screenshots
+
+      - name: Run Lighthouse on the portal home page
+        env:
+          CHROME_PATH: ${{ runner.temp }}/playwright-chromium
+        run: |
+          CHROME_PATH="$(node -e "const { chromium } = require('playwright'); process.stdout.write(chromium.executablePath())")"
+          export CHROME_PATH
+          npx lighthouse https://www.tn.gov.in/             --only-categories=accessibility,performance,best-practices,seo             --output=html --output=json             --output-path=docs/audit/lighthouse/tn-gov-home             --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage"             --max-wait-for-load=45000
+
+      - name: Run keyboard and axe checks on the three pages
+        run: node scripts/run-keyboard-audit.mjs
+
+      - name: Capture the Lighthouse report summary
+        run: node scripts/capture-lighthouse-summary.mjs
+
+      - name: Commit the audit evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/audit/lighthouse docs/audit/keyboard-results.md docs/audit/axe-results.json docs/screenshots
+          if git diff --cached --quiet; then
+            echo "No new audit evidence to commit."
+          else
+            git commit -m "audit: add live Lighthouse and keyboard evidence"
+            git push
+          fi

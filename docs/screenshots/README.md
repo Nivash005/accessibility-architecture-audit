@@ -1,13 +1,16 @@
-# Screenshots from the live review
+# Screenshots and browser evidence
 
-These images are created by the GitHub Actions browser run. They should show the live Tamil Nadu Government website, not the React example app.
+These files are generated from the live Tamil Nadu Government Portal by the audit workflow. They are not mockups of the website.
 
-| File | What it records |
+| File | What it shows |
 |---|---|
-| 01-home-lighthouse.png | Screenshot of the generated Lighthouse report |
-| 02-keyboard-focus.png | Home page after the first Tab press |
-| 03-navigation.png | Home page after twelve Tab presses |
-| 04-accessibility-controls.png | FAQ page at the matching keyboard stop, or at the end of the search sequence if no matching control was found |
-| 05-service-navigation.png | Full-page capture of the department-wise Services page |
+| `01-home-lighthouse.png` | Lighthouse report summary for the portal home page |
+| `02-keyboard-focus.png` | The first keyboard focus state on the home page |
+| `03-navigation.png` | A later point in the home-page keyboard sequence |
+| `04-accessibility-controls.png` | FAQ page and its documented accessibility options |
+| `05-service-navigation.png` | The department-wise Services page |
 
-The run details and raw focus sequence are in docs/audit/keyboard-pass.md and docs/audit/keyboard-results.json. Open the raw report before interpreting a result: the accessibility toolbar search is a bounded keyboard walk, not proof that a control is missing.
+The companion `docs/audit/keyboard-results.md` contains the focus trace and timestamp. The Lighthouse HTML/JSON and axe results are in `docs/audit/lighthouse/` and `docs/audit/axe-results.json`.
+
+Because the pages are live, screenshots may change as the portal changes. The audit timestamp and tested URLs are included with the results.
+

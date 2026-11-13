@@ -1,37 +1,54 @@
-# How the starter app is divided
+# How the starter app is organised
 
-The sample app has one job: show a short service list from an API. The folder boundaries are meant to stay useful when the example grows.
+I kept the app deliberately small. The aim is to show where each responsibility belongs, not to build a full government service platform.
 
-## Browser: client/
+## The pieces
 
-The client is responsible for what the visitor sees and does: page structure, link and button behavior, keyboard focus, loading feedback, error feedback and requests to the API. It should not import database libraries or decide how service records are stored.
+### Client
 
-## API: server/
+The React app displays the service list and handles loading and error messages. It uses semantic headings, a skip link and visible keyboard focus styling.
 
-The server exposes HTTP endpoints, validates incoming requests and returns data in a predictable shape. Service logic and data access stay here so the client does not need to know whether the data comes from an array, SQLite or PostgreSQL.
+The client calls `GET /api/services`. It does not import server-side code or read from a database.
 
-## Evidence and decisions: docs/
+### Server
 
-The audit report explains why the project exists. The audit folder stores the raw output and run summary. The architecture folder records the separation described above. Screenshots are kept beside the report so a reviewer can compare the written finding with the page that was checked.
+The Express app exposes the API. The route calls a small service-list function and returns JSON. The sample data lives in its own module so it can be replaced later.
 
-## Tests: server/test/ and tests/
+### Documentation and tests
 
-The server test checks the service data shape. The acceptance checklist records browser checks that need a person to verify them. CI runs the automated tests whenever code is pushed or a pull request is opened.
+The `docs/` folder holds the research, audit results and architecture notes. The `tests/` folder contains a short acceptance checklist. The automated unit tests run in GitHub Actions on pushes and pull requests.
 
-## First feature from browser to data
+## One feature, from screen to data
 
 ```text
-React service list
-      |
-      | GET /api/services
-      v
+Person opens the catalogue
+        |
+        v
+React renders loading state
+        |
+        v
+GET /api/services
+        |
+        v
 Express route
-      |
-      v
-service-list function
-      |
-      v
-example data in memory
+        |
+        v
+listServices()
+        |
+        v
+Sample service records
+        |
+        v
+React renders the list
 ```
 
-The records in server/src/services.js are sample content for the prototype. They are not represented as live links to government transactions. When real service destinations or a database are added, they should be verified and kept on the server side of the API boundary.
+## Why keep these boundaries?
+
+If I later replace the sample array with SQLite or PostgreSQL, I should only need to change the server-side data layer. The React component should still receive the same JSON shape.
+
+This also makes it easier to test the UI and API separately. Accessibility-related changes can stay in the client without pulling database details into the browser.
+
+## What I would add next
+
+For a real service, I would add request validation, a repository interface, persistent storage, API integration tests and a proper error model. I would also add component-level accessibility tests and a manual screen-reader test plan before treating the service as ready for public use.
+
