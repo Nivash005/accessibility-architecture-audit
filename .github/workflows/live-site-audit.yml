@@ -1,0 +1,147 @@
+name: Live website accessibility audit
+
+on:
+  push:
+    paths:
+      - '.github/workflows/live-site-audit.yml'
+      - 'scripts/live-site-audit.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the browser audit tools
+        run: npm install --no-save lighthouse@12.8.2 playwright@1.56.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Lighthouse against the live portal
+        run: |
+          mkdir -p docs/audit/lighthouse
+          CHROMIUM_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
+          npx lighthouse https://www.tn.gov.in/ \
+            --chrome-path="$CHROMIUM_PATH" \
+            --chrome-flags="--headless --no-sandbox" \
+            --only-categories=accessibility,performance,best-practices,seo \
+            --output=html \
+            --output-path=docs/audit/lighthouse/tn-gov-home.html \
+            --quiet
+          npx lighthouse https://www.tn.gov.in/ \
+            --chrome-path="$CHROMIUM_PATH" \
+            --chrome-flags="--headless --no-sandbox" \
+            --only-categories=accessibility,performance,best-practices,seo \
+            --output=json \
+            --output-path=docs/audit/lighthouse/tn-gov-home.report.json \
+            --quiet
+
+      - name: Run the keyboard-only browser walkthrough
+        run: node scripts/live-site-audit.mjs
+
+      - name: Capture a screenshot of the Lighthouse report
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+          const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+          await page.goto('file://' + process.cwd() + '/docs/audit/lighthouse/tn-gov-home.html', { waitUntil: 'load' });
+          await page.waitForTimeout(1000);
+          await page.screenshot({ path: 'docs/screenshots/01-home-lighthouse.png', fullPage: false });
+          await browser.close();
+          NODE
+
+      - name: Save the Lighthouse score and findings summary
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('docs/audit/lighthouse/tn-gov-home.report.json', 'utf8'));
+          const scores = Object.fromEntries(Object.entries(report.categories).map(([key, value]) => [key, Math.round(value.score * 100)]));
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            requestedUrl: report.requestedUrl,
+            finalDisplayedUrl: report.finalDisplayedUrl,
+            lighthouseVersion: report.lighthouseVersion,
+            userAgent: report.userAgent,
+            formFactor: report.configSettings?.formFactor || 'mobile default',
+            scores,
+            failingAudits: Object.values(report.audits)
+              .filter((audit) => audit.score === 0)
+              .map((audit) => ({ id: audit.id, title: audit.title, description: audit.description, displayValue: audit.displayValue || null })),
+            manualAudits: Object.values(report.audits)
+              .filter((audit) => audit.scoreDisplayMode === 'manual')
+              .map((audit) => ({ id: audit.id, title: audit.title })),
+          };
+          fs.writeFileSync('docs/audit/lighthouse/summary.json', JSON.stringify(summary, null, 2) + '\n');
+          const scoreRows = Object.entries(scores).map(([key, value]) => '| ' + key + ' | ' + value + '/100 |').join('\n');
+          const failedRows = summary.failingAudits.length
+            ? summary.failingAudits.map((audit) => '- **' + audit.title + '** (' + audit.id + ')' + (audit.displayValue ? ' — ' + audit.displayValue : '') + ': ' + audit.description).join('\n')
+            : 'No failed audits were reported.';
+          const manualRows = summary.manualAudits.length
+            ? summary.manualAudits.map((audit) => '- ' + audit.title + ' (' + audit.id + ')').join('\n')
+            : 'Lighthouse did not list separate manual audits for this run.';
+          const markdown = [
+            '# Lighthouse run',
+            '',
+            '- Captured: ' + summary.capturedAt,
+            '- URL: ' + summary.finalDisplayedUrl,
+            '- Lighthouse: ' + summary.lighthouseVersion,
+            '- Browser: ' + summary.userAgent,
+            '- Form factor: ' + summary.formFactor,
+            '',
+            '## Scores',
+            '',
+            '| Category | Score |',
+            '|---|---:|',
+            scoreRows,
+            '',
+            '## Failed audits',
+            '',
+            failedRows,
+            '',
+            '## Manual checks',
+            '',
+            manualRows,
+            '',
+            'The full HTML and JSON reports are stored beside this file. Lighthouse is an automated sample of one page and one viewport; it is not a WCAG conformance certificate.',
+            ''
+          ].join('\n');
+          fs.writeFileSync('docs/audit/lighthouse/report-summary.md', markdown);
+          console.log(markdown);
+          NODE
+
+      - name: Upload the raw evidence as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tamil-nadu-portal-accessibility-evidence
+          path: |
+            docs/audit/lighthouse/
+            docs/audit/keyboard-results.json
+            docs/audit/keyboard-pass.md
+            docs/screenshots/
+          if-no-files-found: error
+
+      - name: Commit evidence to main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/audit/lighthouse docs/audit/keyboard-results.json docs/audit/keyboard-pass.md docs/screenshots
+          if git diff --cached --quiet; then
+            echo 'No new evidence changes to commit.'
+          else
+            git commit -m 'audit: add live portal Lighthouse and keyboard evidence'
+            git push
+          fi
