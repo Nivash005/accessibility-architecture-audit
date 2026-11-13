@@ -1,5 +1,12 @@
-# Lighthouse Output
+# Lighthouse evidence
 
-Run the command in the root README to generate `tn-gov-home.html` here. Commit the generated HTML report and capture its summary screenshot in `docs/screenshots/01-home-lighthouse.png`.
+The live-site workflow writes the Lighthouse HTML and JSON reports here, along with a short score and failed-audit summary.
 
-The report is intentionally absent until a real Lighthouse run is completed; no synthetic scores or screenshots are included.
+Files created by a successful run:
+
+- tn-gov-home.html — full human-readable Lighthouse report
+- tn-gov-home.report.json — full machine-readable Lighthouse result
+- summary.json — captured URL, date, version and category scores
+- report-summary.md — readable score and findings overview
+
+The report is a browser snapshot taken at one point in time. Use the failed-audit details and affected elements, not just the headline score. A Lighthouse score is not a WCAG conformance certificate.
