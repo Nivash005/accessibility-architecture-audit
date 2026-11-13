@@ -10,10 +10,10 @@ This is an independent student project. It is not connected to the Government of
 
 - **client/** – React page for browsing a sample service list.
 - **server/** – Express API that returns the list.
-- **docs/audit/** – audit report, method, results and limitations.
+- **docs/audit/** – findings, method, page observations, browser results and limitations.
 - **docs/architecture/** – explanation of the client/server split.
-- **docs/screenshots/** – browser evidence captured during the audit.
-- **scripts/** – repeatable browser audit scripts.
+- **docs/screenshots/** – instructions for real browser captures.
+- **scripts/** – repeatable browser audit scripts and a Windows runner.
 - **tests/** – app checks and a short manual acceptance list.
 - **.github/workflows/** – build/test checks and the live website audit.
 
@@ -47,21 +47,31 @@ I used three pages:
 2. Services – https://www.tn.gov.in/services.php
 3. FAQ – https://www.tn.gov.in/faq.php
 
-The audit combines Lighthouse, axe-core and keyboard events sent through Chromium. The keyboard script records the elements reached with Tab and Shift+Tab. These automated checks are useful for repeating the same route, but they do not replace a person testing with a screen reader or other assistive technology.
+The official page text shows that the portal provides a Screen Reader Access link, a Skip To Main Content link and an Accessibility Menu. The Services page has Department Wise, Service wise and Category wise views, plus a Search control. I wrote down those observations in [page-observations.md](docs/audit/page-observations.md).
 
-## Running the live audit
+The audit workflow also tries Lighthouse, axe-core and keyboard navigation in Chromium. It records what happened rather than treating a blank tab as a passing result.
 
-The GitHub Actions workflow tries to audit the live portal. If the hosted runner can reach the site, it saves the Lighthouse report, keyboard trace, axe results and screenshots in this repository.
+## Current browser result
 
-The first hosted attempts timed out before the portal painted any content. Lighthouse reported NO_FCP, and the browser did not receive a usable page response. I have documented that instead of entering made-up scores or keeping a blank browser screenshot as if it were site evidence.
+The latest GitHub-hosted run finished, but it could not get a usable page load:
 
-The portal may still be reachable from a normal browser on your own network. On Windows, open PowerShell in the repository folder and run:
+- Lighthouse returned **NO_FCP**. The final URL was about:blank and no category score was produced.
+- The keyboard walkthrough timed out on Home, Services and FAQ, so it recorded zero real-page Tab stops.
+- axe-core marked all three pages **not checked** because none of the pages loaded.
+
+The reports are saved in docs/audit/lighthouse/ and docs/audit/keyboard-results.md. The run is also visible in the [GitHub Actions history](https://github.com/Nivash005/accessibility-architecture-audit/actions).
+
+I have not invented a score or added screenshots of the blank browser tab. The successful live-browser evidence is still needed before the assignment can be called fully complete.
+
+## Run the live audit from Windows
+
+If the portal opens in a normal browser on your network, open PowerShell in the repository folder and run:
 
 \`\`\`powershell
 .\\scripts\\run-audit-local.ps1
 \`\`\`
 
-That script installs the audit tools, runs Lighthouse, walks the pages with keyboard input and creates the evidence files. After it finishes, review the reports before committing them.
+The script installs Lighthouse, Playwright and axe-core, downloads Chromium, and runs the checks. Review the output before committing it. Do not disable certificate validation to force a score.
 
 ## How the app is organised
 
@@ -87,7 +97,10 @@ The React page only talks to the API. It does not know where the server stores i
 ## Where to start
 
 - Audit report: docs/audit/report.md
-- Audit method: docs/audit/methodology.md
+- Observations from the official page text: docs/audit/page-observations.md
+- Browser audit method: docs/audit/methodology.md
+- Lighthouse result: docs/audit/lighthouse/summary.md
+- Keyboard/axe result: docs/audit/keyboard-results.md
 - Hosted-runner limitation: docs/audit/environment-limitations.md
 - Architecture notes: docs/architecture/README.md
 - Screenshot guide: docs/screenshots/README.md
