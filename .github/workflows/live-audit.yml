@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   audit:
-    # The audit commits its own evidence. Skip that follow-up push to avoid a loop.
+    # The evidence commit is made by this workflow; don't trigger the audit again for that commit.
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -37,31 +37,63 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Create report folders
+      - name: Create evidence folders
         run: mkdir -p docs/audit/lighthouse docs/screenshots
 
-      - name: Run Lighthouse on the portal home page
-        env:
-          CHROME_PATH: ${{ runner.temp }}/playwright-chromium
+      - name: Check whether the portal is reachable from this runner
+        continue-on-error: true
+        run: |
+          {
+            echo "Connectivity check — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            for url in "https://www.tn.gov.in/" "https://tn.gov.in/"; do
+              echo
+              echo "URL: $url"
+              curl -4 -I -L --connect-timeout 10 --max-time 20 "$url" || true
+            done
+          } | tee docs/audit/lighthouse/connectivity-check.txt
+
+      - name: Run Lighthouse
+        continue-on-error: true
         run: |
           CHROME_PATH="$(node -e "const { chromium } = require('playwright'); process.stdout.write(chromium.executablePath())")"
           export CHROME_PATH
-          npx lighthouse https://www.tn.gov.in/             --only-categories=accessibility,performance,best-practices,seo             --output=html --output=json             --output-path=docs/audit/lighthouse/tn-gov-home             --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage"             --max-wait-for-load=45000
+          npx lighthouse https://www.tn.gov.in/ \
+            --only-categories=accessibility,performance,best-practices,seo \
+            --output=html --output=json \
+            --output-path=docs/audit/lighthouse/tn-gov-home \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --max-wait-for-load=45000
 
-      - name: Run keyboard and axe checks on the three pages
+      - name: Run the keyboard and axe checks
+        if: always()
         run: node scripts/run-keyboard-audit.mjs
 
-      - name: Capture the Lighthouse report summary
+      - name: Prepare Lighthouse summary
+        if: always()
         run: node scripts/capture-lighthouse-summary.mjs
 
-      - name: Commit the audit evidence
+      - name: Upload the reports and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-audit-evidence
+          path: |
+            docs/audit/lighthouse/
+            docs/audit/keyboard-results.md
+            docs/audit/keyboard-results.json
+            docs/audit/axe-results.json
+            docs/screenshots/
+          if-no-files-found: warn
+
+      - name: Commit generated evidence
+        if: always() && github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/audit/lighthouse docs/audit/keyboard-results.md docs/audit/axe-results.json docs/screenshots
+          git add docs/audit/lighthouse docs/audit/keyboard-results.md docs/audit/keyboard-results.json docs/audit/axe-results.json docs/screenshots
           if git diff --cached --quiet; then
             echo "No new audit evidence to commit."
           else
-            git commit -m "audit: add live Lighthouse and keyboard evidence"
-            git push
+            git commit -m "audit: save latest browser results"
+            git push origin HEAD:main
           fi
