@@ -1,95 +1,114 @@
 # Accessibility audit report
 
-**Website:** Tamil Nadu Government Portal – https://www.tn.gov.in/  
+**Website:** Tamil Nadu Government Portal - https://www.tn.gov.in/  
 **Pages in scope:** Home, Services and FAQ  
-**Purpose:** record the main navigation and accessibility questions raised by this public-service website.
+**Review date:** 13 November 2026
 
 ## Why I selected this portal
 
-The portal is a starting point for people looking for Tamil Nadu Government information and services. Its FAQ describes it as a single-window source for state information. The same FAQ says that font-size and contrast options are available at the top of the site.
+The portal is a starting point for people looking for Tamil Nadu Government information and services. Its FAQ describes the site as a single-window source for state information. The same page says that the portal is GIGW compliant and advertises font-size and contrast options.
 
-I selected it because the service directory contains many departments and because the portal itself makes an explicit statement about accessibility support.
+I selected it because the Services page brings together a large number of departments, while the home page includes several different ways to move through information.
 
-## A note about the evidence
+## What I was able to inspect
 
-The hosted browser environment used for this audit could not load the portal. Chromium timed out while navigating to the home page, Services and FAQ; Lighthouse returned NO_FCP because the page did not paint content. The failed run is documented in environment-limitations.md.
+The official pages were text-readable through the web index on the review date, even though the hosted Chromium runner could not load them.
 
-That means the findings below are review priorities based on the public page structure and the portal's own documentation. They should not be presented as five confirmed WCAG failures. The live Lighthouse and keyboard evidence still needs to be captured from a browser/network that can load the site.
+The Home page text snapshot includes a Screen Reader Access link, a Skip To Main Content link and an Accessibility Menu with text-to-speech, bigger/smaller text, line height, text spacing, link highlighting, cursor and colour/theme options.
 
-## Findings
+The Services page snapshot shows Department Wise, Service wise and Category wise views, a Search control and a long department list.
 
-### 1. Make the Services list easier to scan
+The FAQ states that the portal is GIGW compliant and advertises font and contrast options. It also explains that departments update portal content through a CMS workflow, with NIC acting as publisher/super administrator.
 
-**Priority: High**
+These are observations about the published page content. They do not prove how the controls behave in a real keyboard or screen-reader session.
 
-The Services page groups a long list of departments, including Revenue, School Education, Transport and Social Welfare. A department-wise list is a sensible starting point, but it still asks visitors to know which department is likely to own the service they need.
+## Hosted browser limitation
 
-**Why this matters:** People may not know the name of the responsible department. A long list also takes more effort to move through with a keyboard or screen reader.
+The GitHub-hosted Chromium run did not load the pages. Lighthouse returned NO_FCP with about:blank as the final URL and all category scores null. The keyboard run recorded zero focus stops because Home, Services and FAQ did not return a usable page response. axe therefore marked all three pages as not checked.
 
-**Suggested improvement:** Keep the department grouping, add a short explanation at the top, use descriptive headings, and consider a search or filter that lets people narrow the list.
+I have not used those failed runs as page screenshots or accessibility scores. The diagnostic details are in environment-limitations.md.
 
-**Evidence:** https://www.tn.gov.in/services.php
+## Findings and recommended fixes
 
-### 2. Check the accessibility controls from the visitor's point of view
+These findings combine what the official pages publish with the checks still required to establish whether the experience works well. They are review findings, not five confirmed WCAG failures.
 
-**Priority: High**
+### 1. Make the Services directory easier to narrow down
 
-The portal FAQ says that people can increase or decrease font size and change colour/contrast settings. Those options are useful only when visitors can find them and understand how they work.
+**Priority: High**  
+**Relevant WCAG topics:** 2.4.6 Headings and Labels; 2.4.10 Section Headings
 
-**Why this matters:** A setting that is hard to locate, has an unclear name or cannot be used from the keyboard can leave the people who need it without a practical way to use it.
+The Services page offers Department Wise, Service wise and Category wise views, plus a Search control. It also lists many separate government departments.
 
-**Suggested improvement:** Make each control easy to identify, give it a useful accessible name, show its current state, and make sure it works with keyboard input as well as a pointer.
+**Why I flagged it:** The choice of departments is useful when a visitor already knows who owns a service. It may be less obvious for someone who only knows what they need to do.
 
-**Evidence:** https://www.tn.gov.in/faq.php. A live keyboard check is still needed to confirm how the controls behave.
+**Suggested improvement:** Keep the three catalogue views, make their names clear, and make sure the search field has a proper label. When the view or results change, provide feedback that assistive technology can announce.
 
-### 3. Keep the keyboard focus easy to follow
+**Evidence:** Official Services page text snapshot: https://www.tn.gov.in/services.php
 
-**Priority: High**
+### 2. Verify the advertised accessibility menu works from the keyboard
 
-The home page links to different content areas and service information. A keyboard user should always be able to see which link or control is active as they move through the page.
+**Priority: High**  
+**Relevant WCAG topics:** 2.1.1 Keyboard; 4.1.2 Name, Role, Value
 
-**Why this matters:** When focus is difficult to see, visitors can lose their place or activate the wrong item.
+The Home page text snapshot lists an Accessibility Menu with text-to-speech, bigger/smaller text, line height, link highlighting, text spacing, cursor and colour/theme options. The FAQ also advertises font and contrast settings.
 
-**Suggested improvement:** Use a clear focus indicator for every interactive element. Check that a fixed header, menu or other page content does not cover the focused control.
+**Why I flagged it:** The portal tells visitors these options are available, so visitors should be able to find, operate and reset them using their chosen input method.
 
-**Evidence:** This is a required check in the keyboard audit method. It is not marked as passed or failed until the live page can be loaded and inspected.
+**Suggested improvement:** Check every control's accessible name, role, state and keyboard activation. Confirm that the setting changes visibly and that Reset All Settings returns the page to a predictable state.
 
-### 4. Make page sections easy to navigate by headings
+**Evidence:** Home page and official FAQ: https://www.tn.gov.in/ and https://www.tn.gov.in/faq.php
 
-**Priority: Medium**
+### 3. Check that Skip To Main Content really moves focus to the main area
 
-The home page brings together several different types of information, such as documents, contact details, press releases, forms and schemes. Clear headings and landmarks help visitors jump to the section they are looking for.
+**Priority: High**  
+**Relevant WCAG topics:** 2.4.1 Bypass Blocks; 2.4.3 Focus Order
 
-**Why this matters:** People using screen readers often move by headings and landmarks. Meaningful link names also help when links are read out of context.
+The Home page text snapshot contains a Skip To Main Content link and a Screen Reader Access link.
 
-**Suggested improvement:** Use a clear page heading, logical section headings and semantic navigation/main/footer landmarks. Do not use visual styling alone to represent a heading.
+**Why I flagged it:** A skip link is a good starting point, but its presence in the page text does not tell us whether it is visible at the right time, whether the target exists, or whether focus moves to the main content.
 
-**Evidence:** The page structure should be checked with Lighthouse/axe and then reviewed in a screen reader. The hosted audit could not reach the live page, so there is no automated result to quote yet.
+**Suggested improvement:** With the keyboard, press Tab from the top of the page, activate the skip link with Enter, and confirm the page moves to the main content rather than only changing the scroll position.
 
-### 5. Keep the demo application's responsibilities separate
+**Evidence:** Home page text snapshot: https://www.tn.gov.in/
 
-**Priority: Medium**
+### 4. Keep the large page structure predictable
 
-The starter project has a React client and an Express server. The browser requests the service list from the API; the server returns data from a separate module. The current data is stored in memory.
+**Priority: Medium**  
+**Relevant WCAG topics:** 1.3.1 Info and Relationships; 2.4.6 Headings and Labels
 
-**Why this matters:** When page components also contain database logic, testing and changing either side becomes harder. It also makes it more difficult to keep accessibility behaviour separate from persistence.
+The Home page brings together Documents, Contact Directory, Press Releases, Forms, Schemes and What's New. Its main navigation is grouped into Government, Documents, Services, News & Events and Others.
 
-**Suggested improvement:** Keep user interaction in the client, HTTP routes in the server, and future database access behind a data-access layer.
+**Why I flagged it:** With several content groups on one page, heading order and landmarks matter. A visitor should be able to jump to a section and understand where they are.
 
-**Evidence:** The code in client/src and server/src, along with the architecture notes.
+**Suggested improvement:** Use one clear page heading, meaningful section headings and landmarks. Make link text understandable when read outside its surrounding card or paragraph.
+
+**Evidence:** Home page text snapshot: https://www.tn.gov.in/
+
+### 5. Keep the demo app's page and data responsibilities separate
+
+**Priority: Medium**  
+**Architecture topic:** Maintainability and testability
+
+The starter app uses React for the service list and Express for the API. The browser calls /api/services, and the server returns records from a separate module.
+
+**Why I flagged it:** Putting database queries inside page components would make the UI harder to test and make later data changes more disruptive.
+
+**Suggested improvement:** Keep the browser focused on presentation, put HTTP routes in the server and add a repository layer when persistent storage is introduced.
+
+**Evidence:** client/src and server/src, explained in docs/architecture/README.md.
 
 ## Priority summary
 
-| Finding | Priority | Main action |
+| Finding | Priority | Suggested next step |
 |---|---|---|
-| Services list takes effort to scan | High | Improve headings and provide a way to narrow choices |
-| Advertised accessibility controls need end-to-end verification | High | Check names, state and keyboard operation |
-| Keyboard focus should remain visible | High | Inspect the full Tab and Shift+Tab path |
-| Page sections should be easy to navigate | Medium | Use semantic headings and landmarks |
-| Demo application should remain maintainable | Medium | Keep UI, API and data responsibilities separate |
+| Service directory has many choices | High | Check search labels, view controls and feedback |
+| Accessibility menu needs keyboard verification | High | Test names, states, activation and reset |
+| Skip link needs end-to-end verification | High | Confirm it moves focus to main content |
+| Long home page needs clear structure | Medium | Review headings, landmarks and link names |
+| Demo app should remain easy to maintain | Medium | Keep UI, API and data access separate |
 
-## What this report does not claim
+## What this audit does not claim
 
-This is a baseline review, not an accessibility certification. Lighthouse and axe can catch many technical issues, but they cannot judge every service journey or tell us whether a person can complete it comfortably with their own assistive technology. The keyboard script is a repeatable browser test; it does not replace testing by people who use screen readers, magnification or switch devices.
+This is a baseline review, not an accessibility certification. The text snapshot helps identify what the portal offers, but it does not expose the full DOM or visual behaviour. Lighthouse and axe can catch many technical issues, but they cannot judge every service journey. The Playwright keyboard walkthrough sends real keyboard events in Chromium, but it does not replace a person testing with a screen reader, magnification or switch device.
 
-I have kept the live-site checks marked as pending until a browser run produces usable evidence.
+The live browser results remain pending until the portal loads in a normal, certificate-validating browser session.
