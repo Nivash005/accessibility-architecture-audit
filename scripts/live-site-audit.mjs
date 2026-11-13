@@ -12,7 +12,6 @@ const docsDirectory = path.resolve('docs');
 const screenshotsDirectory = path.join(docsDirectory, 'screenshots');
 const auditDirectory = path.join(docsDirectory, 'audit');
 const viewport = { width: 1440, height: 1000 };
-const accessibilityWords = /font|contrast|colour|color|accessib/i;
 
 await fs.mkdir(screenshotsDirectory, { recursive: true });
 await fs.mkdir(auditDirectory, { recursive: true });
@@ -52,7 +51,7 @@ async function loadPage(target) {
 
 async function inspectPage(page) {
   return page.evaluate(() => {
-    const tidy = (text) => (text || '').replace(/\\s+/g, ' ').trim().slice(0, 180);
+    const tidy = (text) => (text || '').replace(/\s+/g, ' ').trim().slice(0, 180);
     const accessibleName = (element) => tidy(
       element.getAttribute('aria-label') ||
       element.getAttribute('title') ||
@@ -126,7 +125,7 @@ async function keyboardWalk(page, limit = 36) {
         element.innerText ||
         element.textContent ||
         ''
-      ).replace(/\\s+/g, ' ').trim().slice(0, 160);
+      ).replace(/\s+/g, ' ').trim().slice(0, 160);
       const outlineVisible = style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0;
 
       return {
@@ -172,7 +171,7 @@ async function keyboardWalk(page, limit = 36) {
         element?.innerText ||
         element?.textContent ||
         ''
-      ).replace(/\\s+/g, ' ').trim().slice(0, 160),
+      ).replace(/\s+/g, ' ').trim().slice(0, 160),
       href: element?.href || null,
     };
   });
@@ -260,7 +259,7 @@ try {
           element?.innerText ||
           element?.textContent ||
           ''
-        ).replace(/\\s+/g, ' ').trim().slice(0, 150);
+        ).replace(/\s+/g, ' ').trim().slice(0, 150);
         return {
           index: tabNumber,
           tag: element?.tagName?.toLowerCase() || null,
@@ -292,7 +291,7 @@ try {
   results.finishedAt = new Date().toISOString();
   await fs.writeFile(
     path.join(auditDirectory, 'keyboard-results.json'),
-    JSON.stringify(results, null, 2) + '\\n',
+    JSON.stringify(results, null, 2) + '\n',
   );
 
   const homeStops = homeResult.keyboard?.tabStops || [];
@@ -357,7 +356,7 @@ try {
     '',
   ];
 
-  await fs.writeFile(path.join(auditDirectory, 'keyboard-pass.md'), lines.join('\\n') + '\\n');
+  await fs.writeFile(path.join(auditDirectory, 'keyboard-pass.md'), lines.join('\n') + '\n');
 } finally {
   await browser.close();
 }
