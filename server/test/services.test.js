@@ -14,9 +14,11 @@ describe('service catalogue data', () => {
     }
   });
 
-  it('does not publish placeholder hash links as working destinations', () => {
+  it('uses working HTTPS destinations on the official portal', () => {
     for (const service of listServices()) {
-      expect(service.href).toBeUndefined();
+      const destination = new URL(service.href);
+      expect(destination.protocol).toBe('https:');
+      expect(destination.hostname).toBe('www.tn.gov.in');
     }
   });
 });
