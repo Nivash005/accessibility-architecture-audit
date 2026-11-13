@@ -1,6 +1,6 @@
 # Lighthouse run summary
 
-- Captured: 2026-11-13T04:01:54.987Z
+- Captured: 2026-11-13T04:14:19.582Z
 - Requested URL: https://www.tn.gov.in/
 - Final URL: about:blank
 - Lighthouse version: 12.8.2
