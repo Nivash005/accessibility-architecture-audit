@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: live-website-audit-main
+  cancel-in-progress: true
+
 jobs:
   audit:
     # The evidence commit is made by this workflow; don't trigger the audit again for that commit.
@@ -94,6 +98,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "No new audit evidence to commit."
           else
-            git commit -m "audit: save latest browser results"
+            git commit -m "audit: save latest browser diagnostics"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
