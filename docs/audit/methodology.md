@@ -1,59 +1,43 @@
-# Audit Methodology
+# How the audit was run
+
+This page describes the repeatable checks used in this repository. Results belong in the report files created by the workflow, not in this procedure document.
+
+## Pages
+
+| Page | Reason for including it |
+|---|---|
+| https://www.tn.gov.in/ | Main entry point and primary navigation |
+| https://www.tn.gov.in/services.php | Department-wise service catalogue |
+| https://www.tn.gov.in/faq.php | The portal's own explanation of its accessibility options and purpose |
 
 ## Lighthouse
 
-Run:
+The workflow runs Lighthouse against the homepage and keeps both the HTML report and machine-readable JSON. The score summary records the date, Lighthouse version, browser user agent, failed audits and manual audits.
+
+To repeat it locally:
 
 ```bash
 npx lighthouse https://www.tn.gov.in/ \
   --only-categories=accessibility,performance,best-practices,seo \
-  --output=html \
-  --output-path=docs/audit/lighthouse/tn-gov-home.html
+  --output=html --output-path=docs/audit/lighthouse/tn-gov-home.html
 ```
 
-Record:
-- Accessibility score
-- Failed audits
-- Passed audits
-- Manual audits
-- Screenshot of the Lighthouse summary
-- Date/time and browser version
+Read the audit details, not only the overall score. A passing automated accessibility score is not proof of WCAG compliance.
 
-Do not copy a score from a third-party article or historical report into the current audit.
+## Keyboard walkthrough
 
-## Keyboard-only
+The Playwright script opens the three pages at a 1440 x 1000 viewport. On the homepage it presses Tab 36 times, records the active element and its computed focus styling, then presses Shift+Tab and checks whether focus returns to the preceding stop. It also looks for the advertised font, contrast or accessibility controls during the first 45 Tab stops on the FAQ page.
 
-Test with mouse/trackpad untouched.
+No mouse or pointer events are used during the keyboard sequence. The screenshots show the first focus state, the page after twelve Tab presses, the FAQ accessibility-control search and the Services page.
 
-| Step | Expected |
-|---|---|
-| Tab from page start | Focus enters a predictable order |
-| Shift+Tab | Focus reverses predictably |
-| Enter on links | Link activates |
-| Space on buttons | Button activates |
-| Escape | Open overlays/menus close where applicable |
-| Focus indicator | Always visible |
-| Sticky content | Does not completely hide focused controls |
-| Dialogs | Focus is managed and escape path exists |
-| Forms | Every control has a usable label |
-| Skip link | Allows bypassing repeated navigation |
+The script records:
 
-Chrome's accessibility documentation notes that automated tools can detect many markup issues, but keyboard/screen-reader usability requires manual testing.
+- tag, label, link destination and tab index of each focused element;
+- whether :focus-visible matches;
+- computed outline and box-shadow values;
+- whether the focused element is within the viewport;
+- page title and language, heading sequence, unnamed links/buttons and missing image alt attributes.
 
-## Evidence capture
+## Manual review still matters
 
-Save screenshots under:
-
-```text
-docs/screenshots/
-```
-
-Recommended names:
-
-```text
-01-home-lighthouse.png
-02-keyboard-focus.png
-03-navigation.png
-04-accessibility-controls.png
-05-service-navigation.png
-```
+A script can record focus order, but it cannot decide whether a link name is helpful, whether the sequence feels natural, or whether a screen-reader user understands the service structure. Review the screenshots and JSON with the live page open. For a stronger assessment, repeat the critical tasks using a screen reader and at least one mobile viewport.
