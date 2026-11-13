@@ -39,7 +39,7 @@ async function loadPage(target, pageContext = context) {
   try {
     response = await page.goto(target.url, {
       waitUntil: 'domcontentloaded',
-      timeout: 90000,
+      timeout: 30000,
     });
     await page.waitForTimeout(2000);
   } catch (error) {
@@ -106,7 +106,7 @@ async function inspectPage(page) {
 }
 
 async function keyboardWalk(page, limit = 36) {
-  await page.reload({ waitUntil: 'domcontentloaded', timeout: 90000 });
+  await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForTimeout(1000);
 
   const stops = [];
@@ -265,7 +265,7 @@ try {
   };
 
   if (!faq.navigationError && faq.response?.ok()) {
-    await faq.page.reload({ waitUntil: 'domcontentloaded', timeout: 90000 });
+    await faq.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
     await faq.page.waitForTimeout(1000);
 
     for (let index = 1; index <= 45; index += 1) {
