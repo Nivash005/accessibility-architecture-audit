@@ -1,57 +1,23 @@
-# Accessibility Baseline & Repository Architecture Audit
+# A practical accessibility audit and a small full-stack starter
 
-**Audited public service:** [Tamil Nadu Government Portal](https://www.tn.gov.in/)
+This repository started as an assignment: choose a public-service website, look at how a person actually moves through it, write down what could be better, and build a project structure that would make improvements easier to maintain.
 
-This repository provides an accessibility audit, a maintainable client/server starter architecture, and a reproducible verification plan.
+I chose the **[Government of Tamil Nadu portal](https://www.tn.gov.in/)** because it is a real entry point for government information and links to services used by citizens. The portal's own [FAQ](https://www.tn.gov.in/faq.php) describes its purpose and lists accessibility options such as text-size and contrast settings. Those statements are useful context, but they are not proof that every page or control works for every user. The live tests in this repository check the experience rather than simply repeating the site's claims.
 
-## Project contents
+## What is here
 
-- `client/` — React + Vite accessible service catalogue
-- `server/` — Express API and service-list use case
-- `docs/audit/` — findings, methodology, source references, and Lighthouse evidence destination
-- `docs/architecture/` — architecture boundaries
-- `docs/screenshots/` — instructions for live audit evidence
-- `tests/` — acceptance checklist
-- `.github/workflows/` — CI workflow
-- `accessibility-audit-template.csv` — prioritized issue register
-- `Audit_Report.pdf` — printable audit summary
+- `docs/audit/report.md` explains the scope, findings and priorities.
+- `docs/audit/lighthouse/` holds the Lighthouse report and score summary from the live run.
+- `docs/audit/keyboard-pass.md` and `keyboard-results.json` record the keyboard walkthrough.
+- `docs/screenshots/` contains captures from the pages that were tested.
+- `accessibility-audit-template.csv` is the issue register in spreadsheet-friendly form.
+- `client/` is a React/Vite service-list interface.
+- `server/` is a small Express API that supplies the service list.
+- `docs/architecture/README.md` explains why those parts are kept separate.
 
-## Five prioritized findings
+## Run it locally
 
-| ID | Finding | Priority |
-|---|---|---|
-| WEB-001 | Validate complete keyboard navigation and focus order | P1 |
-| WEB-002 | Verify visible focus and focus obstruction | P1 |
-| WEB-003 | Improve service catalogue information hierarchy | P1 |
-| WEB-004 | Verify advertised accessibility controls are keyboard-operable | P1 |
-| WEB-005 | Keep UI, API, use-case, and persistence boundaries separate | P2 |
-
-Read the complete [audit report](docs/audit/report.md) or open the [PDF report](Audit_Report.pdf).
-
-## Architecture
-
-```text
-accessibility-architecture-audit/
-├── client/
-│   └── src/
-├── server/
-│   ├── src/
-│   └── test/
-├── docs/
-│   ├── audit/
-│   ├── architecture/
-│   └── screenshots/
-├── tests/
-├── .github/workflows/
-├── accessibility-audit-template.csv
-├── Audit_Report.pdf
-├── package.json
-└── README.md
-```
-
-## Local setup
-
-Requirements: Node.js 20+ and npm 10+.
+You will need Node.js 20 or newer and npm.
 
 ```bash
 npm install
@@ -60,60 +26,48 @@ npm install --prefix server
 npm run dev
 ```
 
-Client: http://localhost:5173  
-API: http://localhost:4000
+The web client runs at http://localhost:5173. The API runs at http://localhost:4000; Vite forwards /api requests to it during development.
 
-Run tests:
+Run the tests with:
 
 ```bash
 npm test
 ```
 
-## Lighthouse
+## How the starter app is put together
 
-Generate a real report immediately before submission:
-
-```bash
-mkdir -p docs/audit/lighthouse
-npx lighthouse https://www.tn.gov.in/ \
-  --only-categories=accessibility,performance,best-practices,seo \
-  --output=html \
-  --output-path=docs/audit/lighthouse/tn-gov-home.html
-```
-
-Save the Lighthouse summary screenshot as `docs/screenshots/01-home-lighthouse.png`.
-
-## Keyboard-only pass
-
-Use Chrome/Edge without the mouse:
-1. Reload and use Tab to traverse focusable elements.
-2. Use Shift+Tab to verify reverse order.
-3. Activate links with Enter and buttons with Space/Enter.
-4. Verify focus is visible and never fully obscured.
-5. Verify menus/dialogs can be operated and exited without a keyboard trap.
-
-Save real captures in `docs/screenshots/` using the names listed in [screenshot instructions](docs/screenshots/README.md).
-
-## Evidence integrity
-
-This repository does not claim a Lighthouse score or manual keyboard result that was not actually captured. The report distinguishes official-source evidence from hands-on verification still to be performed in a real browser. Do not submit mock/generated screenshots as audit evidence.
-
-## First vertical slice
-
-`Service Catalogue` demonstrates:
+The first feature is deliberately small: show a list of public-service examples.
 
 ```text
-React UI → GET /api/services → Express route → service use case → in-memory data
+Browser -> React page -> GET /api/services -> Express route -> service data
 ```
 
-The in-memory implementation is the seam for a later database-backed repository. UI components do not import persistence modules.
+The browser does not know how the server stores its data. Today the example data is held in memory. A database can be introduced behind the server later without teaching the React components about database tables or drivers. The entries are examples, not live application links from the Government portal.
 
-## References
+## Re-running the website audit
 
-- [Tamil Nadu Government Portal](https://www.tn.gov.in/)
-- [Tamil Nadu Portal FAQ](https://www.tn.gov.in/faq.php)
-- [Tamil Nadu Services](https://www.tn.gov.in/services.php)
-- [WCAG 2.2](https://www.w3.org/TR/wcag/)
-- [Chrome DevTools Accessibility](https://developer.chrome.com/docs/devtools/accessibility/reference)
+The **Live website accessibility audit** workflow runs Lighthouse and a keyboard-only browser walkthrough against three public pages:
 
-See [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md) for final evidence and publication tasks.
+- [Home](https://www.tn.gov.in/)
+- [Services](https://www.tn.gov.in/services.php)
+- [FAQ](https://www.tn.gov.in/faq.php)
+
+It saves the HTML/JSON Lighthouse output, the keyboard trace and real browser screenshots in this repository. You can run it again from **Actions → Live website accessibility audit → Run workflow**. It also runs automatically when the audit script or workflow changes.
+
+The equivalent local Lighthouse command is:
+
+```bash
+npx lighthouse https://www.tn.gov.in/ \
+  --only-categories=accessibility,performance,best-practices,seo \
+  --output=html --output-path=docs/audit/lighthouse/tn-gov-home.html
+```
+
+The screenshots are evidence from a particular browser, viewport and date. They are not a certificate of WCAG conformance. A human should still review the full page, test with a screen reader, and check any manual Lighthouse audits before making a compliance claim.
+
+## Main references
+
+- [Tamil Nadu Government portal](https://www.tn.gov.in/)
+- [Portal FAQ](https://www.tn.gov.in/faq.php)
+- [Services page](https://www.tn.gov.in/services.php)
+- [Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/wcag/)
+- [Chrome DevTools accessibility reference](https://developer.chrome.com/docs/devtools/accessibility/)
