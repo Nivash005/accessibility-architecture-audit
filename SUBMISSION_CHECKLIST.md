@@ -37,7 +37,7 @@ The hosted browser did not load the Tamil Nadu portal. Lighthouse returned NO_FC
 When the portal is reachable from a local Windows browser, run this from PowerShell in the repository root:
 
 \`\`\`powershell
-.\\scripts\\run-audit-local.ps1
+.\scripts\run-audit-local.ps1
 \`\`\`
 
 Open the generated reports and check that the screenshots show the real portal before committing them or marking the remaining boxes complete.
