@@ -24,8 +24,8 @@ const context = await browser.newContext({
   reducedMotion: 'reduce',
 });
 
-async function loadPage(target) {
-  const page = await context.newPage();
+async function loadPage(target, pageContext = context) {
+  const page = await pageContext.newPage();
   const consoleErrors = [];
   const pageErrors = [];
 
@@ -189,8 +189,11 @@ async function keyboardWalk(page, limit = 36) {
   };
 }
 
+let activeContext = context;
 const results = {
   startedAt: new Date().toISOString(),
+  normalHomeNavigationError: null,
+  certificateErrorIgnoredForKeyboardRun: false,
   browser: 'Chromium ' + browser.version(),
   viewport,
   inputMethod: 'Playwright keyboard events only during the Tab / Shift+Tab walkthrough. No mouse or pointer input was used.',
@@ -198,7 +201,23 @@ const results = {
 };
 
 try {
-  const home = await loadPage(pagesToReview[0]);
+  let home = await loadPage(pagesToReview[0]);
+  if (home.navigationError && /ERR_CERT|certificate|SSL/i.test(home.navigationError)) {
+    results.normalHomeNavigationError = home.navigationError;
+    await home.page.screenshot({
+      path: path.join(screenshotsDirectory, '00-standard-browser-error.png'),
+    }).catch(() => {});
+    await home.page.close();
+    activeContext = await browser.newContext({
+      viewport,
+      locale: 'en-IN',
+      timezoneId: 'Asia/Kolkata',
+      reducedMotion: 'reduce',
+      ignoreHTTPSErrors: true,
+    });
+    results.certificateErrorIgnoredForKeyboardRun = true;
+    home = await loadPage(pagesToReview[0], activeContext);
+  }
   const homeResult = {
     httpStatus: home.response?.status() ?? null,
     finalUrl: home.page.url(),
@@ -215,7 +234,7 @@ try {
   results.pages.home = homeResult;
   await home.page.close();
 
-  const services = await loadPage(pagesToReview[1]);
+  const services = await loadPage(pagesToReview[1], activeContext);
   const serviceResult = {
     httpStatus: services.response?.status() ?? null,
     finalUrl: services.page.url(),
@@ -233,7 +252,7 @@ try {
   results.pages.services = serviceResult;
   await services.page.close();
 
-  const faq = await loadPage(pagesToReview[2]);
+  const faq = await loadPage(pagesToReview[2], activeContext);
   const faqResult = {
     httpStatus: faq.response?.status() ?? null,
     finalUrl: faq.page.url(),
@@ -312,6 +331,12 @@ try {
     'Browser: ' + results.browser + '; viewport: ' + viewport.width + ' x ' + viewport.height + '.',
     '',
     'The Tab sequence was sent through the browser keyboard API. No pointer input was used. This is a repeatable keyboard walkthrough, not a full assistive-technology assessment.',
+    results.normalHomeNavigationError
+      ? 'The normal browser navigation first failed with: ' + results.normalHomeNavigationError
+      : 'The normal browser navigation did not report a certificate error.',
+    results.certificateErrorIgnoredForKeyboardRun
+      ? 'For diagnosis only, the keyboard walkthrough was repeated after allowing the browser to ignore the certificate error. Those screenshots do not represent the default secure-browser experience.'
+      : 'Certificate validation was not bypassed for this keyboard walkthrough.',
     '',
     '## Pages reached',
     '',
@@ -345,7 +370,8 @@ try {
     '',
     '## Screenshots',
     '',
-    '- docs/screenshots/02-keyboard-focus.png — first keyboard focus state on the home page.',
+    '- docs/screenshots/00-standard-browser-error.png — normal-browser error screen, when a certificate error was reported.',
+    '- docs/screenshots/02-keyboard-focus.png — first keyboard focus state on the home page, if the page rendered.',
     '- docs/screenshots/03-navigation.png — home page after twelve Tab presses.',
     '- docs/screenshots/04-accessibility-controls.png — focused matching control if found, otherwise the FAQ at the end of the search sequence.',
     '- docs/screenshots/05-service-navigation.png — Services page, full-page capture.',
