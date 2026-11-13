@@ -1,0 +1,39 @@
+{
+  "startedAt": "2026-11-13T03:57:57.143Z",
+  "browser": "Chromium 158.0.8127.18",
+  "pages": [
+    {
+      "name": "Home",
+      "requestedUrl": "https://www.tn.gov.in/",
+      "finalUrl": "about:blank",
+      "title": "Loading https://www.tn.gov.in/",
+      "httpStatus": null,
+      "loaded": false,
+      "navigationError": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/\", waiting until \"domcontentloaded\"\n",
+      "status": "not checked",
+      "reason": "The page did not return a successful response. No blank-page axe result was recorded."
+    },
+    {
+      "name": "Services",
+      "requestedUrl": "https://www.tn.gov.in/services.php",
+      "finalUrl": "about:blank",
+      "title": "Loading https://www.tn.gov.in/services.php",
+      "httpStatus": null,
+      "loaded": false,
+      "navigationError": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/services.php\", waiting until \"domcontentloaded\"\n",
+      "status": "not checked",
+      "reason": "The page did not return a successful response. No blank-page axe result was recorded."
+    },
+    {
+      "name": "FAQ",
+      "requestedUrl": "https://www.tn.gov.in/faq.php",
+      "finalUrl": "about:blank",
+      "title": "Loading https://www.tn.gov.in/faq.php",
+      "httpStatus": null,
+      "loaded": false,
+      "navigationError": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/faq.php\", waiting until \"domcontentloaded\"\n",
+      "status": "not checked",
+      "reason": "The page did not return a successful response. No blank-page axe result was recorded."
+    }
+  ]
+}

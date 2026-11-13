@@ -1,0 +1,39 @@
+{
+  "startedAt": "2026-11-13T03:57:57.143Z",
+  "finishedAt": "2026-11-13T03:58:57.353Z",
+  "browser": "Chromium 158.0.8127.18",
+  "viewport": "1440 x 900 CSS pixels",
+  "inputMethod": "Tab and Shift+Tab keyboard events only; no mouse navigation",
+  "pages": [
+    {
+      "name": "Home",
+      "requestedUrl": "https://www.tn.gov.in/",
+      "finalUrl": "about:blank",
+      "title": "Loading https://www.tn.gov.in/",
+      "httpStatus": null,
+      "loaded": false,
+      "navigationError": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/\", waiting until \"domcontentloaded\"\n"
+    },
+    {
+      "name": "Services",
+      "requestedUrl": "https://www.tn.gov.in/services.php",
+      "finalUrl": "about:blank",
+      "title": "Loading https://www.tn.gov.in/services.php",
+      "httpStatus": null,
+      "loaded": false,
+      "navigationError": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/services.php\", waiting until \"domcontentloaded\"\n"
+    },
+    {
+      "name": "FAQ",
+      "requestedUrl": "https://www.tn.gov.in/faq.php",
+      "finalUrl": "about:blank",
+      "title": "Loading https://www.tn.gov.in/faq.php",
+      "httpStatus": null,
+      "loaded": false,
+      "navigationError": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/faq.php\", waiting until \"domcontentloaded\"\n"
+    }
+  ],
+  "keyboardTrace": [],
+  "faqTabStops": [],
+  "accessibilityControl": null
+}
