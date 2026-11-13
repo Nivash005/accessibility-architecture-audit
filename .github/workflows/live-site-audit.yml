@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir -p docs/audit/lighthouse
           set +e
-          openssl s_client -connect www.tn.gov.in:443 -servername www.tn.gov.in -verify_return_error </dev/null > docs/audit/lighthouse/tls-check.txt 2>&1
+          timeout 20s openssl s_client -connect www.tn.gov.in:443 -servername www.tn.gov.in -verify_return_error </dev/null > docs/audit/lighthouse/tls-check.txt 2>&1
           exit_code=$?
           echo "openssl_exit_code=$exit_code" >> docs/audit/lighthouse/tls-check.txt
           exit 0
