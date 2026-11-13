@@ -8,12 +8,13 @@ This repository provides an accessibility audit, a maintainable client/server st
 
 - `client/` — React + Vite accessible service catalogue
 - `server/` — Express API and service-list use case
-- `docs/audit/` — findings, methodology, and source references
+- `docs/audit/` — findings, methodology, source references, and Lighthouse evidence destination
 - `docs/architecture/` — architecture boundaries
 - `docs/screenshots/` — instructions for live audit evidence
 - `tests/` — acceptance checklist
 - `.github/workflows/` — CI workflow
 - `accessibility-audit-template.csv` — prioritized issue register
+- `Audit_Report.pdf` — printable audit summary
 
 ## Five prioritized findings
 
@@ -25,7 +26,7 @@ This repository provides an accessibility audit, a maintainable client/server st
 | WEB-004 | Verify advertised accessibility controls are keyboard-operable | P1 |
 | WEB-005 | Keep UI, API, use-case, and persistence boundaries separate | P2 |
 
-Read the complete [audit report](docs/audit/report.md).
+Read the complete [audit report](docs/audit/report.md) or open the [PDF report](Audit_Report.pdf).
 
 ## Architecture
 
@@ -43,6 +44,7 @@ accessibility-architecture-audit/
 ├── tests/
 ├── .github/workflows/
 ├── accessibility-audit-template.csv
+├── Audit_Report.pdf
 ├── package.json
 └── README.md
 ```
