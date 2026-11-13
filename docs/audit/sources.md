@@ -1,22 +1,17 @@
-# Audit Sources
+# Sources used in this review
 
-## Primary official sources
+I used the portal's own pages to understand what it says the site is for, and W3C/Chrome documentation to frame the checks.
 
-1. Tamil Nadu Government Portal — https://www.tn.gov.in/
-2. Tamil Nadu Government Portal FAQ — https://www.tn.gov.in/faq.php
-3. Tamil Nadu Government Services — https://www.tn.gov.in/services.php
-4. Tamil Nadu Government Portal Screen Reader page — https://www.tn.gov.in/screenreader.php
-5. Tamil Nadu IT/e-Governance material — https://it.tn.gov.in/
+## Tamil Nadu Government portal
 
-## Standards / testing references
+- [Home page](https://www.tn.gov.in/) — main navigation and entry point.
+- [Services page](https://www.tn.gov.in/services.php) — department-wise service listing.
+- [FAQ](https://www.tn.gov.in/faq.php) — describes the portal as a single-window source for information and services; says text-size and contrast options are available; describes the portal's CMS publishing workflow.
 
-6. WCAG 2.2 — https://www.w3.org/TR/wcag/
-7. Chrome DevTools Accessibility — https://developer.chrome.com/docs/devtools/accessibility/
+## Accessibility standards and tools
 
-## Current evidence
+- [WCAG 2.2](https://www.w3.org/TR/wcag/) — criteria used as the reference for keyboard access, focus visibility, headings and labels.
+- [Chrome DevTools accessibility reference](https://developer.chrome.com/docs/devtools/accessibility/) — browser-based accessibility inspection guidance.
+- [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/) — automated page audit used for the recorded score and audit details.
 
-The official portal currently presents Government, Documents, Services, News & Events and Other navigation areas, plus forms, schemes and "What's New" content. The Services page currently exposes department-wise/service-wise navigation. The official FAQ states that accessibility options include font increase/decrease, colour schemes and black/white contrast themes.
-
-## Citation note
-
-The URLs above are the sources used for the audit. When publishing to GitHub, preserve the URLs in this file so an evaluator can independently verify the source material.
+The portal is the source for statements about its content and advertised features. The Lighthouse report and keyboard trace in this repository are the evidence for what the browser run actually found. Neither should be treated as a complete conformance certificate.
