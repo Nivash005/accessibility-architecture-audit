@@ -1,0 +1,47 @@
+{
+  "startedAt": "2026-11-13T02:54:55.491Z",
+  "normalHomeNavigationError": null,
+  "certificateErrorIgnoredForKeyboardRun": false,
+  "browser": "Chromium 141.0.7390.37",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "inputMethod": "Playwright keyboard events only during the Tab / Shift+Tab walkthrough. No mouse or pointer input was used.",
+  "pages": {
+    "home": {
+      "httpStatus": null,
+      "finalUrl": "about:blank",
+      "navigationError": "page.goto: Timeout 90000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/\", waiting until \"domcontentloaded\"\n",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "structure": {
+        "error": "page.evaluate: Execution context was destroyed, most likely because of a navigation"
+      },
+      "keyboard": null
+    },
+    "services": {
+      "httpStatus": null,
+      "finalUrl": "about:blank",
+      "navigationError": "page.goto: Timeout 90000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/services.php\", waiting until \"domcontentloaded\"\n",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "structure": {
+        "error": "page.evaluate: Execution context was destroyed, most likely because of a navigation"
+      }
+    },
+    "faq": {
+      "httpStatus": null,
+      "finalUrl": "about:blank",
+      "navigationError": "page.goto: Timeout 90000ms exceeded.\nCall log:\n  - navigating to \"https://www.tn.gov.in/faq.php\", waiting until \"domcontentloaded\"\n",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "structure": {
+        "error": "page.evaluate: Execution context was destroyed, most likely because of a navigation"
+      },
+      "accessibilityControlTabStop": null,
+      "first45TabStops": []
+    }
+  },
+  "finishedAt": "2026-11-13T03:01:40.338Z"
+}
