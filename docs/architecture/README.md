@@ -1,78 +1,37 @@
-# Architecture
+# How the starter app is divided
 
-## Goal
-Provide a small, testable full-stack foundation for an accessible public-service experience.
+The sample app has one job: show a short service list from an API. The folder boundaries are meant to stay useful when the example grows.
 
-## Boundaries
+## Browser: client/
 
-### `client/`
-Owns:
-- semantic HTML
-- keyboard interaction
-- visual focus states
-- API consumption
-- user-facing error/loading states
+The client is responsible for what the visitor sees and does: page structure, link and button behavior, keyboard focus, loading feedback, error feedback and requests to the API. It should not import database libraries or decide how service records are stored.
 
-Must not:
-- import server modules
-- access database drivers
-- contain persistence logic
+## API: server/
 
-### `server/`
-Owns:
-- HTTP routing
-- validation
-- service orchestration
-- repository interfaces/implementations
+The server exposes HTTP endpoints, validates incoming requests and returns data in a predictable shape. Service logic and data access stay here so the client does not need to know whether the data comes from an array, SQLite or PostgreSQL.
 
-Must not:
-- know about React components
-- contain browser-specific behavior
+## Evidence and decisions: docs/
 
-### `docs/`
-Owns:
-- audit evidence
-- architecture decisions
-- setup instructions
+The audit report explains why the project exists. The audit folder stores the raw output and run summary. The architecture folder records the separation described above. Screenshots are kept beside the report so a reviewer can compare the written finding with the page that was checked.
 
-### `tests/`
-Owns:
-- acceptance/integration scenarios crossing client/server boundaries
+## Tests: server/test/ and tests/
 
-## First vertical feature slice
+The server test checks the service data shape. The acceptance checklist records browser checks that need a person to verify them. CI runs the automated tests whenever code is pushed or a pull request is opened.
 
-**Service catalogue**
+## First feature from browser to data
 
 ```text
-GET /api/services
-       |
-       v
-service route
-       |
-       v
-service use-case
-       |
-       v
-service repository
-       |
-       v
-JSON
-       |
-       v
 React service list
+      |
+      | GET /api/services
+      v
+Express route
+      |
+      v
+service-list function
+      |
+      v
+example data in memory
 ```
 
-The current repository uses an in-memory repository to keep setup friction low. The repository interface is intentionally the seam where PostgreSQL/SQLite can be introduced later.
-
-## Accessibility architecture rules
-
-1. Prefer native HTML elements.
-2. Do not use `div`/`span` as interactive controls.
-3. Every form control has a programmatic label.
-4. Every interactive element has a visible focus state.
-5. Focus order follows the visual/semantic order.
-6. Dialogs have a keyboard escape path.
-7. Errors are associated with the relevant control.
-8. Language changes are represented semantically.
-9. Automated checks supplement, not replace, manual keyboard testing.
-10. Accessibility acceptance tests are part of CI.
+The records in server/src/services.js are sample content for the prototype. They are not represented as live links to government transactions. When real service destinations or a database are added, they should be verified and kept on the server side of the API boundary.
