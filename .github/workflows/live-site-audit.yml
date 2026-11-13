@@ -27,9 +27,21 @@ jobs:
         run: npm install --no-save lighthouse@12.8.2 playwright@1.56.1
 
       - name: Install Chromium
+        id: install_chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Lighthouse against the live portal
+      - name: Record the live TLS certificate presented by the site
+        run: |
+          mkdir -p docs/audit/lighthouse
+          set +e
+          openssl s_client -connect www.tn.gov.in:443 -servername www.tn.gov.in -verify_return_error </dev/null > docs/audit/lighthouse/tls-check.txt 2>&1
+          exit_code=$?
+          echo "openssl_exit_code=$exit_code" >> docs/audit/lighthouse/tls-check.txt
+          exit 0
+
+      - name: Run Lighthouse with normal certificate validation
+        id: standard_lighthouse
+        continue-on-error: true
         run: |
           mkdir -p docs/audit/lighthouse
           CHROMIUM_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
@@ -48,26 +60,63 @@ jobs:
             --output-path=docs/audit/lighthouse/tn-gov-home.report.json \
             --quiet
 
+      - name: Retry Lighthouse as a clearly labelled TLS diagnostic
+        if: steps.standard_lighthouse.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          CHROMIUM_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
+          npx lighthouse https://www.tn.gov.in/ \
+            --chrome-path="$CHROMIUM_PATH" \
+            --chrome-flags="--headless --no-sandbox --ignore-certificate-errors" \
+            --only-categories=accessibility,performance,best-practices,seo \
+            --output=html \
+            --output-path=docs/audit/lighthouse/tn-gov-home-diagnostic.html \
+            --quiet
+          npx lighthouse https://www.tn.gov.in/ \
+            --chrome-path="$CHROMIUM_PATH" \
+            --chrome-flags="--headless --no-sandbox --ignore-certificate-errors" \
+            --only-categories=accessibility,performance,best-practices,seo \
+            --output=json \
+            --output-path=docs/audit/lighthouse/tn-gov-home-diagnostic.report.json \
+            --quiet
+
       - name: Run the keyboard-only browser walkthrough
+        if: always() && steps.install_chromium.outcome == 'success'
         run: node scripts/live-site-audit.mjs
 
       - name: Capture a screenshot of the Lighthouse report
+        if: always() && (hashFiles('docs/audit/lighthouse/tn-gov-home.html') != '' || hashFiles('docs/audit/lighthouse/tn-gov-home-diagnostic.html') != '')
         run: |
           node --input-type=module <<'NODE'
+          import fs from 'node:fs';
           import { chromium } from 'playwright';
+          const standard = 'docs/audit/lighthouse/tn-gov-home.html';
+          const diagnostic = 'docs/audit/lighthouse/tn-gov-home-diagnostic.html';
+          const chosen = fs.existsSync(standard) ? standard : diagnostic;
           const browser = await chromium.launch({ headless: true });
           const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-          await page.goto('file://' + process.cwd() + '/docs/audit/lighthouse/tn-gov-home.html', { waitUntil: 'load' });
+          await page.goto('file://' + process.cwd() + '/' + chosen, { waitUntil: 'load' });
           await page.waitForTimeout(1000);
           await page.screenshot({ path: 'docs/screenshots/01-home-lighthouse.png', fullPage: false });
           await browser.close();
           NODE
 
       - name: Save the Lighthouse score and findings summary
+        if: always()
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const report = JSON.parse(fs.readFileSync('docs/audit/lighthouse/tn-gov-home.report.json', 'utf8'));
+          const standardJson = 'docs/audit/lighthouse/tn-gov-home.report.json';
+          const diagnosticJson = 'docs/audit/lighthouse/tn-gov-home-diagnostic.report.json';
+          const usingDiagnostic = !fs.existsSync(standardJson) && fs.existsSync(diagnosticJson);
+          const chosenJson = fs.existsSync(standardJson) ? standardJson : (usingDiagnostic ? diagnosticJson : null);
+          if (!chosenJson) {
+            const note = '# Lighthouse could not complete\\n\\nThe normal browser run returned no usable Lighthouse JSON report. Check tls-check.txt and the GitHub Actions log. No score has been invented.\\n';
+            fs.writeFileSync('docs/audit/lighthouse/report-summary.md', note);
+            fs.writeFileSync('docs/audit/lighthouse/summary.json', JSON.stringify({ status: 'failed', note: 'No Lighthouse JSON output was produced.' }, null, 2) + '\\n');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(chosenJson, 'utf8'));
           const scores = Object.fromEntries(Object.entries(report.categories).map(([key, value]) => [key, Math.round(value.score * 100)]));
           const summary = {
             capturedAt: new Date().toISOString(),
@@ -76,6 +125,7 @@ jobs:
             lighthouseVersion: report.lighthouseVersion,
             userAgent: report.userAgent,
             formFactor: report.configSettings?.formFactor || 'mobile default',
+            runMode: usingDiagnostic ? 'TLS diagnostic: certificate errors were ignored by Chromium' : 'Normal certificate validation',
             scores,
             failingAudits: Object.values(report.audits)
               .filter((audit) => audit.score === 0)
@@ -100,6 +150,7 @@ jobs:
             '- Lighthouse: ' + summary.lighthouseVersion,
             '- Browser: ' + summary.userAgent,
             '- Form factor: ' + summary.formFactor,
+            '- Run mode: ' + summary.runMode,
             '',
             '## Scores',
             '',
